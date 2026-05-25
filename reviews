@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>OG Present — Отзывы</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/pjH3gb0s/logo-png.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            padding: 32px 20px 80px;
+            transition: background 0.3s ease;
+        }
+        body.pink-mode { background: #0f0510; }
+        .blob {
+            position: fixed;
+            width: 70vw;
+            height: 70vw;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            pointer-events: none;
+            animation: floatBlob 20s ease-in-out infinite;
+            opacity: 0.5;
+            mix-blend-mode: screen;
+        }
+        .blob-1 { background: radial-gradient(circle, rgba(210, 180, 140, 0.55), rgba(210, 180, 140, 0.08)); top: -15%; left: -15%; width: 80vw; height: 80vw; animation-delay: 0s; }
+        .blob-2 { background: radial-gradient(circle, rgba(180, 80, 100, 0.45), rgba(180, 80, 100, 0.04)); bottom: -20%; right: -20%; width: 85vw; height: 85vw; animation-delay: -7s; }
+        .blob-3 { background: radial-gradient(circle, rgba(60, 100, 140, 0.4), rgba(60, 100, 140, 0.04)); top: 30%; right: -15%; width: 60vw; height: 60vw; animation-delay: -14s; }
+        body.pink-mode .blob-1 { background: radial-gradient(circle, rgba(255, 140, 170, 0.6), rgba(255, 140, 170, 0.1)); }
+        body.pink-mode .blob-2 { background: radial-gradient(circle, rgba(220, 90, 120, 0.5), rgba(220, 90, 120, 0.08)); }
+        body.pink-mode .blob-3 { background: radial-gradient(circle, rgba(200, 70, 100, 0.45), rgba(200, 70, 100, 0.06)); }
+        @keyframes floatBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            35% { transform: translate(6%, 4%) scale(1.08); }
+            70% { transform: translate(-4%, 7%) scale(0.96); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        .container { max-width: 800px; margin: 0 auto; position: relative; z-index: 2; }
+        .card {
+            background: rgba(15, 15, 20, 0.55);
+            backdrop-filter: blur(16px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 36px 32px;
+            margin-bottom: 32px;
+        }
+        body.pink-mode .card { background: rgba(30, 10, 20, 0.55); }
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 6px 18px;
+            border-radius: 100px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #d4cfc0;
+            margin-bottom: 24px;
+            border: 1px solid rgba(210, 180, 140, 0.3);
+        }
+        body.pink-mode .badge { color: #ffb6c1; border-color: #ffb6c1; }
+        h1 { font-size: 48px; font-weight: 700; letter-spacing: -2px; background: linear-gradient(135deg, #ffffff 0%, #c9af7b 100%); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 20px; text-align: center; }
+        body.pink-mode h1 { background: linear-gradient(135deg, #ffffff 0%, #ffb6c1 100%); }
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .review-card {
+            background: rgba(20, 20, 30, 0.4);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid rgba(210, 180, 140, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .review-card:hover { transform: translateY(-4px); background: rgba(30, 30, 45, 0.5); border-color: rgba(210, 180, 140, 0.4); }
+        body.pink-mode .review-card { background: rgba(255, 200, 210, 0.1); border-color: #ffb6c1; }
+        body.pink-mode .review-card:hover { background: rgba(255, 200, 210, 0.2); }
+        .review-avatar {
+            width: 45px;
+            height: 45px;
+            min-width: 45px;
+            border-radius: 50%;
+            background: rgba(210, 180, 140, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: rgba(210, 180, 140, 0.8);
+            font-size: 18px;
+        }
+        body.pink-mode .review-avatar { background: rgba(255, 200, 210, 0.2); color: #ffb6c1; }
+        .review-content { flex: 1; }
+        .review-text { font-size: 14px; color: rgba(255, 255, 255, 0.85); margin-bottom: 12px; line-height: 1.5; }
+        .review-author { font-size: 13px; font-weight: 600; color: rgba(210, 180, 140, 0.7); letter-spacing: 0.3px; }
+        body.pink-mode .review-author { color: #ffb6c1; }
+        .review-rating { color: #c9af7b; font-size: 14px; margin-bottom: 6px; }
+        body.pink-mode .review-rating { color: #ffb6c1; }
+        .site-nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        .site-nav a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(210, 180, 140, 0.4);
+            padding-bottom: 4px;
+            transition: all 0.2s;
+        }
+        .site-nav a:hover { color: #c9af7b; border-bottom-color: #c9af7b; }
+        body.pink-mode .site-nav a { color: #ffb6c1; border-bottom-color: #ffb6c1; }
+        .site-nav a.active { color: #c9af7b; border-bottom-color: #c9af7b; }
+        body.pink-mode .site-nav a.active { color: #ffb6c1; border-bottom-color: #ffb6c1; }
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        .theme-btn {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 60px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+        .theme-btn.active {
+            background: rgba(210, 180, 140, 0.3);
+            border-color: rgba(210, 180, 140, 0.6);
+        }
+        body.pink-mode .theme-btn.active {
+            background: rgba(255, 200, 210, 0.3);
+            border-color: #ffb6c1;
+        }
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(210, 180, 140, 0.5);
+            border-radius: 60px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 20px;
+            color: rgba(210, 180, 140, 0.8);
+            transition: all 0.3s ease;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        .scroll-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: rgba(255, 255, 255, 0.8); }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border-radius: 16px; border: 1px solid rgba(210, 180, 140, 0.4); background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 15px; font-family: inherit; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        body.pink-mode .form-group input, body.pink-mode .form-group textarea { border-color: #ffb6c1; }
+        .submit-btn {
+            background: rgba(210, 180, 140, 0.85);
+            color: #0a0a0a;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .submit-btn:hover { transform: scale(0.98); background: #c9af7b; }
+        body.pink-mode .submit-btn { background: rgba(232, 106, 138, 0.9); color: #fff; }
+        .form-message { margin-top: 15px; padding: 10px; border-radius: 12px; text-align: center; display: none; }
+        .form-message.success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+        .form-message.error { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+        .rating { display: flex; gap: 8px; cursor: pointer; margin-bottom: 10px; }
+        .rating-star { font-size: 28px; color: rgba(255, 255, 255, 0.3); transition: color 0.2s; }
+        .rating-star.active { color: #c9af7b; }
+        body.pink-mode .rating-star.active { color: #ffb6c1; }
+        @media (max-width: 700px) {
+            h1 { font-size: 32px; }
+            .card { padding: 24px 20px; }
+            .review-card { flex-direction: column; align-items: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<div class="theme-switcher">
+    <button class="theme-btn" id="themeDark">Тёмная</button>
+    <button class="theme-btn" id="themePink">Пикми</button>
+</div>
+<button class="scroll-top" id="scrollTopBtn">↑</button>
+
+<div class="container">
+    <div class="site-nav">
+        <a href="index.html">Главная</a>
+        <a href="services.html">Услуги</a>
+        <a href="portfolio.html">Портфолио</a>
+        <a href="design-pack.html">Дизайн-пак</a>
+        <a href="reviews.html" class="active">Отзывы</a>
+        <a href="order.html">Заказать</a>
+        <a href="contacts.html">Контакты</a>
+    </div>
+
+    <div class="card">
+        <div class="badge">ЧТО ГОВОРЯТ КЛИЕНТЫ</div>
+        <h1>Отзывы</h1>
+        <div id="reviewsList" class="reviews-grid">
+            <div style="text-align: center; padding: 40px;">Загрузка отзывов...</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="badge">ОСТАВИТЬ ОТЗЫВ</div>
+        <form id="reviewForm">
+            <div class="form-group">
+                <label>Ваше имя</label>
+                <input type="text" id="reviewName" required placeholder="Как вас представить?">
+            </div>
+            <div class="form-group">
+                <label>Ваш отзыв</label>
+                <textarea id="reviewText" required placeholder="Расскажите о вашем опыте работы с нами..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Оценка</label>
+                <div class="rating" id="ratingStars">
+                    <span class="rating-star" data-rating="1">☆</span>
+                    <span class="rating-star" data-rating="2">☆</span>
+                    <span class="rating-star" data-rating="3">☆</span>
+                    <span class="rating-star" data-rating="4">☆</span>
+                    <span class="rating-star" data-rating="5">☆</span>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Отправить отзыв</button>
+            <div id="reviewFormMessage" class="form-message"></div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // === НАСТРОЙКИ ===
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyd4rb0uB8h6wIW2FpfoXrXDK_KiLCp8BkqSVdYz0EGFYw_jKi-p7LEKHHfZj7XMuyV/exec';
+
+    // Переключение тем
+    const themeDarkBtn = document.getElementById('themeDark');
+    const themePinkBtn = document.getElementById('themePink');
+    function setTheme(theme) {
+        document.body.classList.remove('pink-mode');
+        if (theme === 'pink') {
+            document.body.classList.add('pink-mode');
+            themeDarkBtn.classList.remove('active');
+            themePinkBtn.classList.add('active');
+        } else {
+            themeDarkBtn.classList.add('active');
+            themePinkBtn.classList.remove('active');
+        }
+        localStorage.setItem('ogpresent-theme', theme);
+    }
+    themeDarkBtn.addEventListener('click', () => setTheme('dark'));
+    themePinkBtn.addEventListener('click', () => setTheme('pink'));
+    const savedTheme = localStorage.getItem('ogpresent-theme');
+    if (savedTheme === 'pink') setTheme('pink');
+    else setTheme('dark');
+
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 200) scrollTopBtn.classList.add('visible');
+        else scrollTopBtn.classList.remove('visible');
+    });
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // === ЗАГРУЗКА ОТЗЫВОВ ИЗ ТАБЛИЦЫ ===
+    async function loadReviews() {
+        const container = document.getElementById('reviewsList');
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL + '?action=get');
+            const data = await response.json();
+            if (data && data.length > 0) {
+                container.innerHTML = '';
+                data.forEach(review => {
+                    const card = document.createElement('div');
+                    card.className = 'review-card';
+                    const starsFull = '★'.repeat(review.rating);
+                    const starsEmpty = '☆'.repeat(5 - review.rating);
+                    card.innerHTML = `
+                        <div class="review-avatar">${review.name.charAt(0).toUpperCase()}</div>
+                        <div class="review-content">
+                            <div class="review-rating">${starsFull}${starsEmpty}</div>
+                            <div class="review-text">${review.text}</div>
+                            <div class="review-author">${review.name}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else {
+                container.innerHTML = '<div style="text-align:center; padding:20px;">Пока нет отзывов. Будьте первыми!</div>';
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки отзывов:', error);
+            container.innerHTML = '<div style="text-align:center; padding:20px;">Не удалось загрузить отзывы</div>';
+        }
+    }
+
+    // === ОТПРАВКА НОВОГО ОТЗЫВА ===
+    let selectedRating = 5;
+    const stars = document.querySelectorAll('.rating-star');
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            selectedRating = parseInt(star.getAttribute('data-rating'));
+            stars.forEach(s => {
+                const rating = parseInt(s.getAttribute('data-rating'));
+                if (rating <= selectedRating) {
+                    s.textContent = '★';
+                    s.classList.add('active');
+                } else {
+                    s.textContent = '☆';
+                    s.classList.remove('active');
+                }
+            });
+        });
+        star.textContent = '★';
+        star.classList.add('active');
+    });
+
+    const reviewForm = document.getElementById('reviewForm');
+    const reviewFormMessage = document.getElementById('reviewFormMessage');
+    reviewForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('reviewName').value.trim();
+        const text = document.getElementById('reviewText').value.trim();
+        if (!name || !text) {
+            reviewFormMessage.textContent = 'Заполните имя и текст отзыва';
+            reviewFormMessage.className = 'form-message error';
+            reviewFormMessage.style.display = 'block';
+            return;
+        }
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, text, rating: selectedRating })
+            });
+            reviewFormMessage.textContent = 'Спасибо! Отзыв отправлен на модерацию.';
+            reviewFormMessage.className = 'form-message success';
+            reviewForm.reset();
+            selectedRating = 5;
+            stars.forEach(s => { s.textContent = '★'; s.classList.add('active'); });
+            // Перезагружаем отзывы через пару секунд
+            setTimeout(() => loadReviews(), 2000);
+        } catch (error) {
+            reviewFormMessage.textContent = 'Ошибка отправки. Попробуйте позже.';
+            reviewFormMessage.className = 'form-message error';
+        }
+        reviewFormMessage.style.display = 'block';
+        setTimeout(() => reviewFormMessage.style.display = 'none', 5000);
+    });
+
+    // Загружаем отзывы при открытии страницы
+    loadReviews();
+</script>
+</body>
+</html>
