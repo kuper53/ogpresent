@@ -228,7 +228,9 @@
     <div class="card">
         <div class="badge">ЧТО ГОВОРЯТ КЛИЕНТЫ</div>
         <h1>Отзывы</h1>
-        <div id="reviewsList" class="reviews-grid"></div>
+        <div id="reviewsList" class="reviews-grid">
+            <div style="text-align: center; padding: 40px;">Загрузка отзывов...</div>
+        </div>
     </div>
 
     <div class="card">
@@ -259,6 +261,10 @@
 </div>
 
 <script>
+    // === НАСТРОЙКИ ===
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyd4rb0uB8h6wIW2FpfoXrXDK_KiLCp8BkqSVdYz0EGFYw_jKi-p7LEKHHfZj7XMuyV/exec';
+
+    // Переключение тем
     const themeDarkBtn = document.getElementById('themeDark');
     const themePinkBtn = document.getElementById('themePink');
     function setTheme(theme) {
@@ -286,37 +292,39 @@
     });
     scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    // Статические отзывы (потом можно заменить на подгрузку из таблицы)
-    const staticReviews = [
-        { avatar: "В", name: "Владимир", text: "Егор привет! Большое спасибо за монтаж. Сделали небольшой влог с дня рождения, вставки отличные. Дал полную свободу действий и не пожалел.", rating: 5 },
-        { avatar: "K", name: "Kamil", text: "Крутые ребята, выполняют работу с ответственностью, а также в сроки.", rating: 5 },
-        { avatar: "w", name: "waunu", text: "Заказал пакет премиум, всё выполнили в кратчайшие сроки, просто лучшие.", rating: 5 },
-        { avatar: "В", name: "Вадим", text: "Заказал пакет Эконом, сделали всё супер быстро. Буду продолжать сотрудничество.", rating: 5 },
-        { avatar: "М", name: "Маленький ярче", text: "Пользуюсь услугами регулярно. Со сроками и качеством проблем нет. Всем советую.", rating: 5 }
-    ];
-
-    const reviewsContainer = document.getElementById('reviewsList');
-    function renderReviews() {
-        reviewsContainer.innerHTML = '';
-        staticReviews.forEach(review => {
-            const card = document.createElement('div');
-            card.className = 'review-card';
-            const starsFull = '★'.repeat(review.rating);
-            const starsEmpty = '☆'.repeat(5 - review.rating);
-            card.innerHTML = `
-                <div class="review-avatar">${review.avatar}</div>
-                <div class="review-content">
-                    <div class="review-rating">${starsFull}${starsEmpty}</div>
-                    <div class="review-text">${review.text}</div>
-                    <div class="review-author">${review.name}</div>
-                </div>
-            `;
-            reviewsContainer.appendChild(card);
-        });
+    // === ЗАГРУЗКА ОТЗЫВОВ ИЗ ТАБЛИЦЫ ===
+    async function loadReviews() {
+        const container = document.getElementById('reviewsList');
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL + '?action=get');
+            const data = await response.json();
+            if (data && data.length > 0) {
+                container.innerHTML = '';
+                data.forEach(review => {
+                    const card = document.createElement('div');
+                    card.className = 'review-card';
+                    const starsFull = '★'.repeat(review.rating);
+                    const starsEmpty = '☆'.repeat(5 - review.rating);
+                    card.innerHTML = `
+                        <div class="review-avatar">${review.name.charAt(0).toUpperCase()}</div>
+                        <div class="review-content">
+                            <div class="review-rating">${starsFull}${starsEmpty}</div>
+                            <div class="review-text">${review.text}</div>
+                            <div class="review-author">${review.name}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else {
+                container.innerHTML = '<div style="text-align:center; padding:20px;">Пока нет отзывов. Будьте первыми!</div>';
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки отзывов:', error);
+            container.innerHTML = '<div style="text-align:center; padding:20px;">Не удалось загрузить отзывы</div>';
+        }
     }
-    renderReviews();
 
-    // Форма отзыва
+    // === ОТПРАВКА НОВОГО ОТЗЫВА ===
     let selectedRating = 5;
     const stars = document.querySelectorAll('.rating-star');
     stars.forEach(star => {
@@ -349,15 +357,30 @@
             reviewFormMessage.style.display = 'block';
             return;
         }
-        // Здесь будет отправка в Google Таблицу (сохраняем код для будущей интеграции)
-        reviewFormMessage.textContent = 'Спасибо! Отзыв отправлен на модерацию.';
-        reviewFormMessage.className = 'form-message success';
-        reviewForm.reset();
-        selectedRating = 5;
-        stars.forEach(s => { s.textContent = '★'; s.classList.add('active'); });
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, text, rating: selectedRating })
+            });
+            reviewFormMessage.textContent = 'Спасибо! Отзыв отправлен на модерацию.';
+            reviewFormMessage.className = 'form-message success';
+            reviewForm.reset();
+            selectedRating = 5;
+            stars.forEach(s => { s.textContent = '★'; s.classList.add('active'); });
+            // Перезагружаем отзывы через пару секунд
+            setTimeout(() => loadReviews(), 2000);
+        } catch (error) {
+            reviewFormMessage.textContent = 'Ошибка отправки. Попробуйте позже.';
+            reviewFormMessage.className = 'form-message error';
+        }
         reviewFormMessage.style.display = 'block';
         setTimeout(() => reviewFormMessage.style.display = 'none', 5000);
     });
+
+    // Загружаем отзывы при открытии страницы
+    loadReviews();
 </script>
 </body>
 </html>
