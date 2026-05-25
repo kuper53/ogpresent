@@ -286,6 +286,9 @@
 </div>
 
 <script>
+    const TELEGRAM_BOT_TOKEN = '8865819184:AAFliyDasbfrw6xCBj9mwEKnpm-3DO7G454';
+    const TELEGRAM_CHAT_ID = '1137754377';
+
     const themeDarkBtn = document.getElementById('themeDark');
     const themePinkBtn = document.getElementById('themePink');
     function setTheme(theme) {
@@ -313,9 +316,6 @@
     });
     scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    const TELEGRAM_BOT_TOKEN = '8865819184:AAFliyDasbfrw6xCBj9mwEKnpm-3DO7G454';
-    const TELEGRAM_CHAT_ID = '1137754377';
-    
     const orderToggleBtn = document.getElementById('orderToggleBtn');
     const orderFormContainer = document.getElementById('orderFormContainer');
     orderToggleBtn.addEventListener('click', () => {
@@ -353,10 +353,10 @@
         }
         const text = `НОВАЯ ЗАЯВКА\n\nИмя: ${name}\nСвязь: ${contact}\nУслуга: ${service}\nСсылка: ${link || 'не указана'}\nТЗ: ${tz || 'не указано'}`;
         try {
-            const response = await fetch(`https://api.telegram.org/bot${8865819184:AAFliyDasbfrw6xCBj9mwEKnpm-3DO7G454}/sendMessage`, {
+            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: 1137754377, text: text })
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text })
             });
             if (response.ok) {
                 orderFormMessage.textContent = 'Заявка отправлена! Мы свяжемся с вами.';
